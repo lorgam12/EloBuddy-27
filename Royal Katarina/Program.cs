@@ -448,7 +448,6 @@ using EloBuddy.SDK.Rendering;
         private static void Main(string[] args)
         {
             Loading.OnLoadingComplete += OnLoad;
-            Game.OnUpdate += OnUpdate;
         }
 
         private static void MenuLoad()
@@ -551,6 +550,7 @@ using EloBuddy.SDK.Rendering;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             Orbwalker.OnPreAttack += BeforeAttack;
             Drawing.OnEndScene += Drawing_OnEndScene;
+            Game.OnUpdate += OnUpdate;
             igniteSlot = Player.Instance.GetSpellSlotFromName("summonerdot");
             if (igniteSlot != SpellSlot.Unknown)
             {
