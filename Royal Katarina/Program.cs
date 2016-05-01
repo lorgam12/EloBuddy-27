@@ -29,29 +29,31 @@ using EloBuddy.SDK.Rendering;
         private static float rStart;
         private static float wcasttime;
 
-        private static CheckBox _smartR = new CheckBox("Use Smart R", true);
-        private static CheckBox _wardJump = new CheckBox("WardJump in combo", true);
+        private static CheckBox _smartR = new CheckBox("Use Smart R", false);
+        private static CheckBox _wardJump = new CheckBox("WardJump in combo");
         private static ComboBox _harassMode = new ComboBox("Harass mode", 1, new string[] { "Q only", "Q+W", "Q+E+W" });
         private static CheckBox _harassQ = new CheckBox("Auto-harass Q", false);
-        private static CheckBox _harassW = new CheckBox("Auto-harass W", true);
-        private static CheckBox _laneQ = new CheckBox("Farm Q", true);
-        private static CheckBox _laneW = new CheckBox("Farm W", true);
+        private static CheckBox _harassW = new CheckBox("Auto-harass W");
+        private static CheckBox _harassE = new CheckBox("Don't jump under turret");
+        private static CheckBox _laneQ = new CheckBox("Farm Q");
+        private static CheckBox _laneW = new CheckBox("Farm W");
         private static CheckBox _laneE = new CheckBox("Farm E", false);
-        private static CheckBox _laneCQ = new CheckBox("Laneclear Q", true);
-        private static CheckBox _laneCW = new CheckBox("Laneclear W", true);
-        private static CheckBox _laneCE = new CheckBox("Laneclear E", true);
-        private static CheckBox _jungleQ = new CheckBox("Jungle Q", true);
-        private static CheckBox _jungleW = new CheckBox("Jungle W", true);
-        private static CheckBox _jungleE = new CheckBox("Jungle E", true);
-        private static CheckBox _ksSmart = new CheckBox("KillSteal", true);
-        private static CheckBox _ksR = new CheckBox("Can break ulti for KS", true);
+        private static CheckBox _laneCQ = new CheckBox("Laneclear Q");
+        private static CheckBox _laneCW = new CheckBox("Laneclear W");
+        private static CheckBox _laneCE = new CheckBox("Laneclear E", false);
+        private static CheckBox _jungleQ = new CheckBox("Jungle Q");
+        private static CheckBox _jungleW = new CheckBox("Jungle W");
+        private static CheckBox _jungleE = new CheckBox("Jungle E");
+        private static CheckBox _ksSmart = new CheckBox("KillSteal");
+        private static CheckBox _ksR = new CheckBox("Can break ulti for KS");
         private static CheckBox _drawingQ = new CheckBox("Draw Q range", false);
         private static CheckBox _drawingW = new CheckBox("Draw W range", false);
-        private static CheckBox _drawingE = new CheckBox("Draw E range", true);
+        private static CheckBox _drawingE = new CheckBox("Draw E range");
         private static CheckBox _drawingR = new CheckBox("Draw R range", false);
-        private static CheckBox _legitE = new CheckBox("Legit E", true);
+        private static CheckBox _legitE = new CheckBox("Legit E", false);
         private static Slider _legitEDelay = new Slider("Legit E Delay", 1000, 0, 2000);
         private static KeyBind _wardJumpKey = new KeyBind("WardJump key", false, KeyBind.BindTypes.HoldActive, 'A');
+        private static CheckBox _jumpMax  = new CheckBox("WardJump always on max range", true);
         private static CheckBox _jumpMinions = new CheckBox("E to minions", true);
         private static CheckBox _jumpMouse = new CheckBox("E to mouse", true);
         private static CheckBox _jumpChampions = new CheckBox("E to champions", true);
@@ -347,12 +349,15 @@ using EloBuddy.SDK.Rendering;
                         W.Cast();
                     break;
                 case 2:
-                    if (Q.IsReady() && W.IsReady() && E.IsReady())
-                    {
+                    if (Q.IsReady())
                         Q.Cast(target);
+                    if (E.IsReady())
+                        if (_harassE.CurrentValue)
+                            if (target.IsUnderHisturret())
+                                return;
                         CastE(target);
+                    if (W.IsReady() && target.Distance(Player.Instance) <= W.Range)
                         W.Cast();
-                    }
                     break;
             }
         }
@@ -453,46 +458,52 @@ using EloBuddy.SDK.Rendering;
         private static void MenuLoad()
         {
             config = MainMenu.AddMenu("Royal Katarina", "RoyalKatarina");
-            Menu Menu = config.AddSubMenu("Settings", "RoyalKatarinaSettings");
+            Menu Menu = config.AddSubMenu("Laning Settings");
+            Menu.AddLabel("Combo settings");
             Menu.Add("_smartRR", _smartR);
-            Menu.Add("_wardJumpR", _wardJump);
+            //Menu.Add("_wardJumpR", _wardJump);
+            if (igniteSlot != SpellSlot.Unknown)
+            {
+                Menu.Add("_igniteR", _ignite);
+            }
+            Menu.AddLabel("Harass settings");
             Menu.Add("_harassModeR", _harassMode);
-            Menu.AddSeparator();
+            Menu.Add("_harassE", _harassE);
             Menu.Add("_harassQR", _harassQ);
             Menu.Add("_harassWR", _harassW);
-            Menu.AddSeparator();
+            Menu.AddLabel("Last Hit settings");
             Menu.Add("_laneQR", _laneQ);
             Menu.Add("_laneWR", _laneW);
             Menu.Add("_laneER", _laneE);
-            Menu.AddSeparator();
+            Menu.AddLabel("Lane Clear settings");
             Menu.Add("_laneCQR", _laneCQ);
             Menu.Add("_laneCWR", _laneCW);
             Menu.Add("_laneCER", _laneCE);
-            Menu.AddSeparator();
+            Menu.AddLabel("Jungle Farm settings");
             Menu.Add("_jungleQR", _jungleQ);
             Menu.Add("_jungleWR", _jungleW);
             Menu.Add("_jungleER", _jungleE);
             Menu.AddSeparator();
             Menu.Add("_ksSmartR", _ksSmart);
             Menu.Add("_ksRR", _ksR);
-            Menu.AddSeparator();
-            Menu.Add("_drawingQR", _drawingQ);
-            Menu.Add("_drawingWR", _drawingW);
-            Menu.Add("_drawingER", _drawingE);
-            Menu.Add("_drawingRR", _drawingR);
-            Menu.AddSeparator();
-            Menu.Add("_legitER", _legitE);
-            Menu.Add("_legitEDelayR", _legitEDelay);
-            Menu.AddSeparator();
-            Menu.Add("_wardJumpKeyR", _wardJumpKey);
-            Menu.Add("_jumpMouseR", _jumpMouse);
-            Menu.Add("_jumpMinionsR", _jumpMinions);
-            Menu.Add("_jumpChampionsR", _jumpChampions);
-            Menu.AddSeparator();
-            if (igniteSlot != SpellSlot.Unknown)
-            {
-                Menu.Add("_igniteR", _ignite);
-            }
+
+            Menu MenuMisc = config.AddSubMenu("Miscellaneous Settings");
+            Menu.AddLabel("E settings");
+            MenuMisc.Add("_legitER", _legitE);
+            MenuMisc.Add("_legitEDelayR", _legitEDelay);
+            MenuMisc.AddLabel("WardJump settings");
+            MenuMisc.Add("_wardJumpKeyR", _wardJumpKey);
+            MenuMisc.Add("_jumpMax", _jumpMax);
+            MenuMisc.Add("_jumpMouseR", _jumpMouse);
+            MenuMisc.Add("_jumpMinionsR", _jumpMinions);
+            MenuMisc.Add("_jumpChampionsR", _jumpChampions);
+
+            Menu Drawings = config.AddSubMenu("Drawing Settings");
+            Drawings.AddLabel("Drawing settings");
+            Drawings.Add("_drawingQR", _drawingQ);
+            Drawings.Add("_drawingWR", _drawingW);
+            Drawings.Add("_drawingER", _drawingE);
+            Drawings.Add("_drawingRR", _drawingR);
         }
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
@@ -542,20 +553,19 @@ using EloBuddy.SDK.Rendering;
             {
                 return;
             }
-            MenuLoad();
-            Drawing.OnDraw += Drawings;
-            Game.OnUpdate += OnUpdate;
-            Player.OnIssueOrder += Obj_AI_Hero_OnIssueOrder;
-            GameObject.OnCreate += GameObject_OnCreate;
-            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Orbwalker.OnPreAttack += BeforeAttack;
-            Drawing.OnEndScene += Drawing_OnEndScene;
-            Game.OnUpdate += OnUpdate;
             igniteSlot = Player.Instance.GetSpellSlotFromName("summonerdot");
             if (igniteSlot != SpellSlot.Unknown)
             {
                 ignite = new Spell.Targeted(igniteSlot, 600);
             }
+            MenuLoad();
+            Drawing.OnDraw += Drawings;
+            Player.OnIssueOrder += Obj_AI_Hero_OnIssueOrder;
+            GameObject.OnCreate += GameObject_OnCreate;
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+            Orbwalker.OnPreAttack += BeforeAttack;
+            Drawing.OnEndScene += Drawing_OnEndScene;
+            Game.OnTick += OnUpdate;
         }
 
         static void Drawing_OnEndScene(EventArgs args)
@@ -650,9 +660,9 @@ using EloBuddy.SDK.Rendering;
                 {
                     JumpPos = pos.To2D();
                 }
-                else if (maxRange || Player.Instance.Distance(pos) > 590)
+                else if (maxRange || Player.Instance.Distance(pos) > 600)
                 {
-                    JumpPos = basePos + (newPos.Normalized() * (590));
+                    JumpPos = basePos + (newPos.Normalized() * (600));
                 }
                 else
                 {
@@ -741,7 +751,7 @@ using EloBuddy.SDK.Rendering;
             WardJump(
                 Game.CursorPos,
                 _jumpMouse.CurrentValue,
-                false,
+                _jumpMax.CurrentValue,
                 false,
                 _jumpMinions.CurrentValue,
                 _jumpChampions.CurrentValue);
