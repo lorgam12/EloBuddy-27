@@ -483,7 +483,7 @@ using EloBuddy.SDK.Rendering;
             Menu.Add("_jungleQR", _jungleQ);
             Menu.Add("_jungleWR", _jungleW);
             Menu.Add("_jungleER", _jungleE);
-            Menu.AddSeparator();
+            Menu.AddLabel("Killsteal settings");
             Menu.Add("_ksSmartR", _ksSmart);
             Menu.Add("_ksRR", _ksR);
 
