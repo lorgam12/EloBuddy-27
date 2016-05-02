@@ -183,12 +183,7 @@ using EloBuddy.SDK.Rendering;
 
         private static void Farm()
         {
-            foreach (var minion in
-                ObjectManager.Get<Obj_AI_Minion>()
-                    .Where(
-                        minion =>
-                        minion.IsValidTarget() && minion.IsEnemy
-                        && minion.Distance(Player.Instance.ServerPosition) < E.Range))
+            foreach (var minion in EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Instance.Position, E.Range).OrderBy(x => x.Health))
             {
                 var qdmg = Player.Instance.GetSpellDamage(minion, SpellSlot.Q);
                 var wdmg = Player.Instance.GetSpellDamage(minion, SpellSlot.W);
@@ -369,7 +364,7 @@ using EloBuddy.SDK.Rendering;
 
         private static void JungleClear()
         {
-            var mobs = ObjectManager.Get<Obj_AI_Minion>().Where(x => x.CampNumber != 0 && x.IsEnemy && x.Distance(Player.Instance.ServerPosition) < E.Range).OrderBy(x => x.MaxHealth).ToArray();
+            var mobs = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Instance.Position, E.Range).OrderByDescending(x => x.MaxHealth).ToArray();
             if (mobs.Length <= 0)
                 return;
 
@@ -424,7 +419,7 @@ using EloBuddy.SDK.Rendering;
             var useW = _laneCW.CurrentValue;
             var useE = _laneCE.CurrentValue;
 
-            var minions = ObjectManager.Get<Obj_AI_Minion>().Where(x => x.CampNumber == 0 && x.IsEnemy && x.Distance(Player.Instance.ServerPosition) < E.Range).OrderBy(x => x.Health).ToArray();
+            var minions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, Player.Instance.Position, E.Range).OrderBy(x => x.Health).ToArray();
             if (minions.Length <= 0)
                 return;
 
